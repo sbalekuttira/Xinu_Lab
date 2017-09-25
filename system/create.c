@@ -11,6 +11,7 @@ local	int newpid();
 pid32	create(
 	  void		*funcaddr,	/* Address of the function	*/
 	  uint32	ssize,		/* Stack size in bytes		*/
+	  uint32 	group,		/* Extra added by sbalekut	*/
 	  pri16		priority,	/* Process priority > 0		*/
 	  char		*name,		/* Name (for debugging)		*/
 	  uint32	nargs,		/* Number of args that follow	*/
@@ -39,8 +40,22 @@ pid32	create(
 	prptr = &proctab[pid];
 
 	/* Initialize process table entry for new process */
+	
+	prptr->tstrack=200;		/*Extra added by sbalekut */
+	prptr->group=group; 		/* Extra added by sbalekut*/              
 	prptr->prstate = PR_SUSP;	/* Initial state is suspended	*/
+	if(prptr->group==0)
+	{
 	prptr->prprio = 0;		/*Extra added by sbalekut */
+	 prptr->rate=priority;           /*Extra added by sbalekut */
+	}
+
+	else
+	{
+
+	prptr->prprio=priority;
+
+	}
 	prptr->rate=priority;		/*Extra added by sbalekut */
 	prptr->lasttime=0;		/*Extra added by sbalekut */
 	prptr->prstkbase = (char *)saddr;
@@ -51,6 +66,9 @@ pid32	create(
 	prptr->prsem = -1;
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
+		
+	
+	
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;

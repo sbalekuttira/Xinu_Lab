@@ -11,14 +11,14 @@ void	clkhandler()
 {
 	static	uint32	count1000 = 1000;	/* Count to 1000 ms	*/
 
-	myclock++;				/*extra added by sbalekut */
+	myclock=myclock+1;				/*extra added by sbalekut */
 	/* Decrement the ms counter, and see if a second has passed */
 
 	if((--count1000) <= 0) {
 
 		/* One second has passed, so increment seconds count */
 
-		clktime++;
+		clktime=clktime+1;
 
 		/* Reset the local ms counter for the next second */
 
@@ -41,7 +41,7 @@ void	clkhandler()
 	/*   remaining time reaches zero			     */
 
 	if((--preempt) <= 0) {
-		preempt = QUANTUM;
+		preempt = 0;				/*EXTRA ADDED BY sbalekut */
 		resched();
 	}
 }

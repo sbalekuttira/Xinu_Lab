@@ -85,7 +85,7 @@ void	nulluser()
 
 	/* Create a process to finish startup and start main */
 
-	resume(create((void *)startup, INITSTK, INITPRIO,
+	resume(create((void *)startup, INITSTK,1, INITPRIO,
 					"Startup process", 0, NULL));
 
 	/* Become the Null process (i.e., guarantee that the CPU has	*/
@@ -130,7 +130,7 @@ local process	startup(void)
 
 	/* Create a process to execute function main() */
 
-	resume(create((void *)main, INITSTK, INITPRIO,
+	resume(create((void *)main, INITSTK,1, INITPRIO,
 					"Main process", 0, NULL));
 
 	/* Startup process exits at this point */
@@ -193,6 +193,7 @@ static	void	sysinit()
 	prptr = &proctab[NULLPROC];
 	prptr->prstate = PR_CURR;
 	prptr->prprio = 0;
+	prptr->group=1; 				//EXTRA added by SBALEKUT
 	strncpy(prptr->prname, "prnull", 7);
 	prptr->prstkbase = getstk(NULLSTK);
 	prptr->prstklen = NULLSTK;

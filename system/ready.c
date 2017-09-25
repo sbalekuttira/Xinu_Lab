@@ -1,8 +1,8 @@
 /* ready.c - ready */
 
 #include <xinu.h>
-
-qid16	readylist;			/* Index of ready list		*/
+#define	INT_MAX 2147483647
+qid16 readylist;			/* Index of ready list		*/
 
 /*------------------------------------------------------------------------
  *  ready  -  Make a process eligible for CPU service
@@ -22,7 +22,20 @@ status	ready(
 
 	prptr = &proctab[pid];
 	prptr->prstate = PR_READY;
-	insert(pid, readylist, prptr->prprio);
+	if(pid==NULLPROC) {
+	insert(pid,readylist,prptr->prprio);
+	}
+	else if(prptr->group==0)
+	{
+	insert(pid,readylist,INT_MAX - prptr->prprio);
+	}
+	 else if(prptr->group==1)
+        {
+        insert(pid,readylist,prptr->prprio);
+        }
+
+	
+
 	resched();
 
 	return OK;
