@@ -23,14 +23,124 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 		return;
 	}
 
+
+	
+
 	/* Point to process table entry for the current (old) process */
 	/* for TS sched added by SBALEKUT */
 	ptold = &proctab[currpid];
-	kprintf("\n\n resched(): old process is %s of group %d with priority %d and quantum %d at time %d \n", ptold->prname,ptold->group,\
-			ptold->prprio,preempt,myclock);
+	
+	if(ptold->prstate!=PR_FREE && ptold->prstate!=PR_CURR && ptold->prstate!=PR_READY)
+		{
 
-	if (ptold->group==1 && preempt==0 )
+			ptold->blockingstate=TRUE;
+
+		}
+
+
+
+
+	if (ptold->group==1 && preempt>0 && ptold->prstate!=PR_CURR)
 	{
+		
+
+
+ 			if(ptold->prprio>= 0 && ptold-> prprio < 10)
+                                 {
+                                        ptold->tstrack=200;
+                                        ptold->prprio=50;
+
+                                }
+
+                         else if (ptold->prprio >= 10 && ptold->prprio <20)
+
+                                {
+
+                                        ptold->tstrack=160;
+                                         ptold->prprio=51;
+
+
+                                 }
+
+
+
+                         else if( ptold->prprio >=20 && ptold->prprio <30 )
+                                {
+
+                                         ptold->tstrack=120;
+                                         ptold->prprio=52;
+
+                                }
+
+                                                                                //IO bound dispatch table added by SBALEKUT
+                         else if (ptold->prprio >= 30 && ptold->prprio <40)
+
+                                 {
+
+                                         ptold->tstrack=80;
+                                         ptold->prprio=54;
+
+
+                                 }
+
+
+			 else if( ptold->prprio >=40 && ptold->prprio <45 )
+                                 {
+
+                                         ptold->tstrack=40;
+                                         ptold->prprio=55;
+
+                                 }
+
+                         else if (ptold->prprio == 45 )
+
+                                 {
+
+                                         ptold->tstrack=40;
+                                          ptold->prprio=56;
+
+
+                                 }
+
+
+
+                         else if( ptold->prprio ==46 )
+                                 {
+
+                                         ptold->tstrack=40;
+                                         ptold->prprio=57;
+
+                                 }
+
+                         else if (ptold->prprio >= 47 && ptold->prprio <59)
+
+                                 {
+
+                                         ptold->tstrack=40;
+                                        ptold->prprio=58;
+
+
+                                 }
+
+
+
+			else
+                                 {
+
+                                         ptold->tstrack=20;
+                                         ptold->prprio=59;
+
+                                }
+
+	}
+
+
+
+
+			
+              				
+	else if(ptold->group==1) 			//CPU BOUND Added by SBALEKUT
+		{				//	kprintf("Inside CPU BLock for process %s \n\n",ptold->prname); 
 		
 			if(ptold->prprio>= 0 && ptold-> prprio <= 9) 
 				{		
@@ -92,110 +202,17 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 
        				 }
 
-							//CPU bound added by SBALEKUT
-	}
-
-
-	else if(ptold->group==1 && preempt > 0)			//IO BOUND Added by SBALEKUT
-		{	kprintf("Inside IO BLock for process %s \n\n",ptold->prname); 
-			if(ptold->prprio>= 0 && ptold-> prprio < 10)
-       				 {
-                			ptold->tstrack=200;
-                			ptold->prprio=50;
-
-        			}
-
-       			 else if (ptold->prprio >= 10 && ptold->prprio <20)
-
-        			{
-
-                			ptold->tstrack=160;
-               				 ptold->prprio=51;
-
-
-       				 }
-
-
-
-       			 else if( ptold->prprio >=20 && ptold->prprio <30 )
-        			{
-
-               				 ptold->tstrack=120;
-               				 ptold->prprio=52;
-
-        			}
-
-										//IO bound dispatch table added by SBALEKUT
-   			 else if (ptold->prprio >= 30 && ptold->prprio <40)
-
-       				 {
-
-               				 ptold->tstrack=80;
-               				 ptold->prprio=54;
-
-
-       				 }
-
-
-
-       			 else if( ptold->prprio >=40 && ptold->prprio <45 )
-       				 {
-
-               				 ptold->tstrack=40;
-               				 ptold->prprio=55;
-
-       				 }
-	   
-			 else if (ptold->prprio == 45 )
-
-       				 {
-
-               				 ptold->tstrack=40;
-              				  ptold->prprio=56;
-
-
-       				 }
-
-
-
-       			 else if( ptold->prprio ==46 )
-       				 {
-
-               				 ptold->tstrack=40;
-               				 ptold->prprio=57;
-
-       				 }
-
-   			 else if (ptold->prprio >= 47 && ptold->prprio <59)
-
-       				 {
-
-               				 ptold->tstrack=40;
-                			ptold->prprio=58;
-
-
-       				 }
-
-
-
-       			 else
-       				 {
-
-               				 ptold->tstrack=20;
-               				 ptold->prprio=59;
-
-        			}
+       			 
+               				 
 
 		}
 
 
 
 
-	ptold->lasttime=myclock- (ptold->lasttime);
+	ptold->lasttime = myclock- (ptold->lasttime);
 	
-//	kprintf("\n resched (), current process is %s and preeampt %d with priority %d \n", ptold->prname,preempt,ptold->prprio);
-	
-//	kprintf("\n last time is %d \n", ptold->lasttime);
+
 	if(currpid != NULLPROC && ptold->group!=1)                                                  /*Extra added by sbalekut */
 	{
 
@@ -204,31 +221,71 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	}
 
 	
-	  
-	
-	if (ptold->prstate == PR_CURR) {  /* Process remains eligible */
-		if (ptold->prprio > firstkey(readylist)) {
-			
-			 if(ptold->group==1)
-           		     {
+/* Aging scheduler code written here. EXtra added by SBALEKUT */
 
-                        preempt=ptold->tstrack;
 
-               			 }
-       			 else
-                		{
+int which_group;   //Which group is picked
+uint32 TS_prio;		//TS group priority	
+uint32 PS_prio;		//PS group priority
+qid16 ready_iter;	//Iterator for readylist
+uint32 TS_count=0;	//TS process counter
+uint32 PS_count=0;	//PS proces counter
 
-                       			 preempt=QUANTUM;
-					ptold->lasttime=myclock;
-				}
-		
-			kprintf("Resched() : new process is %s of group %d with priority %d and quantum %d at time %d \n",\
-				ptold->prname,ptold->group,ptold->prprio,preempt,myclock);
-			return;
 
+	  ready_iter=firstid(readylist);
+/*Traversing ready list added by Sbalekut */ 
+		while(ready_iter!=queuetail(readylist))
+		{
+		if(ready_iter!=NULLPROC && proctab[ready_iter].group==1)
+			{
+			TS_count=TS_count+1;
+
+
+			}
+		else if(ready_iter!=NULLPROC && proctab[ready_iter].group==0)
+			{
+
+			PS_count=PS_count+1;	
+
+			}
+
+		ready_iter=queuetab[ready_iter].qnext;
 		}
 
+
+
+//kprintf (" \n \n Inside  Aging old priority  for TS group  is %d and PS group  is %d \n",group_TS.priority, group_PS.priority);
+	
+	
+	
+	if(ptold->group==0)
+	{
+
+	group_PS.priority=group_PS.pr_init;
+	}
+
+	
+	
+	if(ptold->group==1)
+        {
+
+        group_TS.priority=group_TS.pr_init;
+        }
+
+	group_PS.priority+=PS_count;
+	group_TS.priority+=TS_count;
+
+
+//kprintf (" \n \n Inside Aging new prio for TS group is %d and PS group  is %d \n",group_TS.priority, group_PS.priority);
+
+
+	
+	if (ptold->prstate == PR_CURR)
+
+ {  
+
 		/* Old process will no longer remain current */
+
 
 		ptold->prstate = PR_READY;
 		
@@ -256,11 +313,76 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 
 	/* Force context switch to highest priority ready process */
 
-	currpid = dequeue(readylist);
+
+
+
+//kprintf("Just before IF TS prio is %d and PS prio is %d", group_TS.priority,group_PS.priority); 
+
+	if( group_TS.priority > group_PS.priority)
+		{
+		which_group=1;
+	//	kprintf("Which group is %n ", which_group);
+
+		}
+	else
+		{	which_group=0;
+
+		}
+
+ //kprintf("which group is %d ", which_group);
+
+	if(which_group==0 && TS_count > 0 && PS_count==0)
+	{
+
+		which_group=1;						// if there are no processes in group
+
+	}
+
+	else if(which_group==1 && TS_count==0)
+	{
+
+	which_group=0;						//There will always be null process in PS
+
+	}
+
+
+ //kprintf("which group is %d ", which_group);
+
+	
+	ready_iter=firstid(readylist);
+	currpid=ready_iter;
+
+
+	while(ready_iter!=queuetail(readylist))
+
+		{
+
+		if(proctab[ready_iter].group == which_group)
+			{
+				
+			currpid=getitem(ready_iter);
+			break;
+			}
+
+		else
+		{
+			ready_iter=queuetab[ready_iter].qnext;
+
+		}
+
+	}
+
+
+	
+
+
+
+
+
 	ptnew = &proctab[currpid];
-//	kprintf("\n resched() : new process is %s and preempt value is %d at %d \n",ptnew->prname,preempt,myclock);
+
 	ptnew->prstate = PR_CURR;
-	//	preempt = QUANTUM;
+	
 
 	if(ptnew->group==1)
 		{
@@ -275,22 +397,21 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 
 
 		}
-       kprintf("\n resched() : new process is %s of group %d with priority %d and QUANTUM %d at time %d \n\n \n", \
-			ptnew->prname,ptnew->group,ptnew->prprio,preempt,myclock);
-/* For was blocekd added by SBALEKut 
- if((ptnew->tlastsched==0 || ptnew->wasblocked==TRUE) && currpid!=NULLPROC && ptnew->group==0)
-{ 
-if(ptnew->prprio >= myclock)
-	ptnew->prprio=ptnew->prprio;
+    
+	/* For was blocekd added by SBALEKut */ 
+ if(ptnew->blockingstate=TRUE && currpid!=NULLPROC && ptnew->group==0)
+		{ 
+			if(ptnew->prprio >= myclock)
+				ptnew->prprio=ptnew->prprio;
 
-else
-	ptnew->prprio=myclock;
+			else
+				ptnew->prprio=myclock;
 
-ptnew->blockingstate=false;
+			ptnew->blockingstate=FALSE;
 
-}
+		}
 
-*/
+
 	ptnew->lasttime=myclock;
 		/* Reset time slice for process	*/
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);

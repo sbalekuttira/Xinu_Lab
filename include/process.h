@@ -56,10 +56,27 @@ struct procent {		/* Entry in the process table		*/
 	uint32	group;		/*Extra added by sbalekut 0 for PS and 1 for TS		*/ 	
 	uint32  lasttime;	/*Extra added by sbalekut		*/
 	uint32  tstrack;	/*Extra added by sbalekut for TS process quantum tracking */
-	uint32 blockstate;	/*Extra added by sbalekut for checking blocked state */
+	uint32 blockingstate;	/*Extra added by sbalekut for checking blocked state */
 };
 
+
+struct for_group
+{
+
+uint32 priority;
+uint32 pr_init;        /*Extra added by SBALEKUT */
+
+};
+
+
+extern struct for_group group_PS;
+extern struct for_group group_TS;
+
 /* Marker for the top of a process stack (used to help detect overflow)	*/
+
+
+
+
 #define	STACKMAGIC	0x0A0AAAA9
 
 extern	struct	procent proctab[];

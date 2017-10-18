@@ -16,7 +16,8 @@ extern	void meminit(void);	/* Initializes the free memory list	*/
 local	process startup(void);	/* Process to finish startup tasks	*/
 
 /* Declarations of major kernel variables */
-
+struct for_group group_PS;		//Extra added by SBALEKUT
+struct for_group group_TS;		// Extra added by SBALEKUT
 struct	procent	proctab[NPROC];	/* Process table			*/
 struct	sentry	semtab[NSEM];	/* Semaphore table			*/
 struct	memblk	memlist;	/* List of free memory blocks		*/
@@ -187,13 +188,18 @@ static	void	sysinit()
 		prptr->prstkbase = NULL;
 		prptr->prprio = 0;
 	}
+	
+	//initializing group priorities to 10. Added by Sbalekut
 
+	group_PS.priority=10;
+	group_TS.priority=10;
+	
 	/* Initialize the Null process entry */	
 
 	prptr = &proctab[NULLPROC];
 	prptr->prstate = PR_CURR;
 	prptr->prprio = 0;
-	prptr->group=1; 				//EXTRA added by SBALEKUT
+	prptr->group=0; 				//EXTRA added by SBALEKUT
 	strncpy(prptr->prname, "prnull", 7);
 	prptr->prstkbase = getstk(NULLSTK);
 	prptr->prstklen = NULLSTK;

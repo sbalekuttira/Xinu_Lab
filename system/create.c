@@ -11,7 +11,7 @@ local	int newpid();
 pid32	create(
 	  void		*funcaddr,	/* Address of the function	*/
 	  uint32	ssize,		/* Stack size in bytes		*/
-	  uint32 	group,		/* Extra added by sbalekut	*/
+	  int	 	group,		/* Extra added by sbalekut	*/
 	  pri16		priority,	/* Process priority > 0		*/
 	  char		*name,		/* Name (for debugging)		*/
 	  uint32	nargs,		/* Number of args that follow	*/
@@ -56,6 +56,7 @@ pid32	create(
 	prptr->prprio=priority;
 
 	}
+	prptr->blockingstate=TRUE;	/*Extra added by sbalekut */
 	prptr->rate=priority;		/*Extra added by sbalekut */
 	prptr->lasttime=0;		/*Extra added by sbalekut */
 	prptr->prstkbase = (char *)saddr;
