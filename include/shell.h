@@ -47,7 +47,7 @@
 #define	SH_DQUOTE	'"'		/* Double quote character	*/
 #define	SH_LESS		'<'		/* Less-than character	*/
 #define	SH_GREATER	'>'		/* Greater-than character	*/
-
+#define SH_RETURN      '\r'		/*Extra added by sbalekut    */	
 #define SH_STICK '|'
 
 /* Token types */

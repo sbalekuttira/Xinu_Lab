@@ -24,6 +24,8 @@ local	pipid32	newpipe_id(void)
 	for (i = 0; i < MAXPIPES; i++) {
 		nextpip_id %= MAXPIPES;	                    /* Wrap around to beginning */
 		if (pipe_tables[nextpip_id].state == PIPE_FREE) {
+			pipe_tables[nextpip_id].state=PIPE_USED;
+	
 			return nextpip_id++;
 		} else {
 			nextpip_id++;
@@ -73,7 +75,9 @@ pip_ptr->write_sem=semcreate(PIPE_SIZE);
 
 	
 restore(mask);
-return pip_id;
+
+
+return pipid32_to_did32(pip_id);
 }
 
 

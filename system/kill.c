@@ -30,12 +30,15 @@ syscall	kill(
 			pip_ptr=&pipe_tables[i];
 
 		if(pip_ptr->owner==pid)
-				pipdelete(i);
+			{pip_ptr->state=PIPE_DISCONNECTED;
+				pipdelete(pipid32_to_did32(i));
+			}
+
 
 		if(pip_ptr->reader==pid||pip_ptr->writer==pid)
 			{
-								
-				pipdisconnect(i);
+							
+				pipdisconnect(pipid32_to_did32(i));
 
 			}
 		}

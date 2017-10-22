@@ -11,14 +11,14 @@ struct	pipe_t *pip_ptr;
 int32	i;					
 
 mask = disable();
-if ( pipe_id< 0 ||  pipe_id > MAXPIPES )
+if ( pipe_id < 0 ||  pipe_id >= MAXPIPES )
 	 {  
 		restore(mask);
 		return SYSERR;
 	}
 
 
-if ( ((pip_ptr = &pipe_tables[pipe_id])->owner)!=currpid || ((pip_ptr = &pipe_tables[pipe_id])->state) == PR_FREE) 
+if ( ((pip_ptr = &pipe_tables[pipe_id])->owner)!=currpid || ((pip_ptr = &pipe_tables[pipe_id])->state) == PIPE_FREE) 
 	{ 
 		restore(mask);
 		return SYSERR;

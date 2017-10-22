@@ -191,15 +191,7 @@ static	void	sysinit()
 
 
 
-	/* Initialize pipe table entries to free */
 
-	for (i = 0; i < MAXPIPES; i++) {
-		pip_ptr = &pipe_tables[i];
-		pip_ptr->state = PIPE_FREE;
-		pip_ptr->read_pos=-1;
-		pip_ptr->write_pos=-1;
-	//	pip_ptr->flag=0;		
-	}
 
 	/* Initialize the Null process entry */	
 
@@ -222,6 +214,24 @@ static	void	sysinit()
 	}
 
     // LAB2: TODO: initialize pipe_tables[MAXPIPES]
+
+
+
+
+/* Initialize pipe table entries to free */
+
+        for (i = 0; i < MAXPIPES; i++) {
+                pip_ptr = &pipe_tables[i];
+                pip_ptr->state = PIPE_FREE;
+                pip_ptr->read_pos=-1;
+                pip_ptr->write_pos=-1;
+        //      pip_ptr->flag=0;        //maybe required for pipread    
+        }
+
+
+
+
+
 
 	/* Initialize buffer pools */
 

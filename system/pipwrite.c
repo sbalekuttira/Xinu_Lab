@@ -26,6 +26,15 @@ if( pipe_id < 0 || pipe_id >MAXPIPES || len<0)
 
 	}
 
+
+
+if (len==0)
+{
+
+restore(mask);
+return 0;
+}
+
 pip_ptr=&pipe_tables[pipe_id];
 
 if(pip_ptr->writer!=currpid)
@@ -36,19 +45,15 @@ if(pip_ptr->writer!=currpid)
 	
 	}
 
-if(pip_ptr->state==PIPE_READ_DISCONNECTED)
-	{
-	
-	restore(mask);
-	return SYSERR;
-	
-	}
+
+
+
 
 
 for( i=0;i<len;i++)
- {
+{
 		
-wait(pip_ptr->write_sem);
+//wait(pip_ptr->write_sem);
 		
 			
 
@@ -58,7 +63,8 @@ if(pip_ptr->state==PIPE_FREE)
 restore(mask);
 return count;
 }
-				
+			
+	
 if(pip_ptr->state==PIPE_READ_DISCONNECTED)	//disconnected by reader
 {
 				
@@ -67,22 +73,27 @@ restore(mask);
 return OK;	
 }
 
-pip_ptr->write_pos=(pip_ptr->write_pos+1)%PIPE_SIZE;
+
+//pip_ptr->write_pos=(pip_ptr->write_pos+1)%PIPE_SIZE;
+
 		
-pip_ptr->pipe_buffer[pip_ptr->write_pos]=buf[i];
+//pip_ptr->pipe_buffer[pip_ptr->write_pos]=
+
+
+pipputc(devptr,buf[i]);
 			
-count++;
+//count++;
 			
 
 
-signal(pip_ptr->read_sem);
+//signal(pip_ptr->read_sem);
 			
 			
 }
 
 
-kprintf("\n\n\n write done   \n\n");
-kprintf("\nBytes Written :% d\n",count);
+//kprintf("\n\n\n write done   \n\n");
+//kprintf("\nBytes Written :% d\n",count);
 
 restore(mask);
 return OK;

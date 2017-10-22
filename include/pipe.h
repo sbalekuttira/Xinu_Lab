@@ -10,6 +10,7 @@ enum pipe_state_t {
 	PIPE_OTHER,
 	PIPE_READ_DISCONNECTED,
 	PIPE_WRITE_DISCONNECTED,
+	PIPE_DISCONNECTED,
 
 
 };
@@ -20,9 +21,9 @@ struct pipe_t {
 	char	pipe_buffer[PIPE_SIZE];   
 	pid32	owner;				
 	pid32	reader;				
-	pid32	writer;
-	int read_pos;
-	int write_pos;
+	pid32	writer;				
+	int read_pos;		//head
+	int write_pos;		//tail
 	sid32   read_sem;
 	sid32  write_sem;	
 
@@ -32,15 +33,4 @@ struct pipe_t {
 
 extern struct pipe_t pipe_tables[MAXPIPES];// Table for all pipes
 
-/*
-pipid32 did32_to_pipid32(did32 devpipe) {
-    ASSERT(devpipe >= PIPELINE0 && devpipe <= PIPELINE9);
-    return devpipe - PIPELINE0;
-}
 
-did32 pipid32_to_did32(pipid32 pip) {
-    ASSERT(pip >= 0 && pip <= 9);
-    return PIPELINE0 + pip;
-}
-
-*/

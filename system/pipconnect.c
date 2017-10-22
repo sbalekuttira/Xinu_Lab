@@ -14,10 +14,10 @@ int32	i;
 
 mask = disable();
 
-pip_ptr = &pipe_tables[pipe_id];
 
 
-if(pipe_id < 0 ||pipe_id > MAXPIPES)
+
+if(pipe_id < 0 ||pipe_id >= MAXPIPES)
 		{
 
 			restore(mask);
@@ -31,6 +31,8 @@ if(pipe_id < 0 ||pipe_id > MAXPIPES)
 			restore(mask);
 			return SYSERR;			
 		}
+
+pip_ptr = &pipe_tables[pipe_id];
 
 	
 	if( pip_ptr->state!=PIPE_USED )

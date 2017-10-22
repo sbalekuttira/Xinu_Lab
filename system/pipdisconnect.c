@@ -12,26 +12,30 @@ intmask mask;
 
 mask = disable();
 
-pip_ptr = &pipe_tables[pipe_id];
 
-if(pipe_id<0 || pipe_id > MAXPIPES)
+
+if(pipe_id<0 || pipe_id >= MAXPIPES)
 		{
 	
 		restore(mask);
 		return SYSERR;
 		}
+
+pip_ptr = &pipe_tables[pipe_id];
+
 		
-		if(pip_ptr->state!=PIPE_CONNECTED && pip_ptr->state!=PIPE_WRITE_DISCONNECTED && pip_ptr->state!=PIPE_READ_DISCONNECTED) 
+if(pip_ptr->state!=PIPE_CONNECTED && pip_ptr->state != PIPE_WRITE_DISCONNECTED && pip_ptr->state != PIPE_READ_DISCONNECTED) 
 		{
 
 		restore(mask);
 		return SYSERR;
 		}
 
+
+
 			
 
-
-	if(currpid!=pip_ptr->reader && currpid!=pip_ptr->writer)
+if(currpid!=pip_ptr->reader && currpid!=pip_ptr->writer)
 
 		{
 			restore(mask);
@@ -39,10 +43,13 @@ if(pipe_id<0 || pipe_id > MAXPIPES)
 
 		}
 
-		if((pip_ptr->state==PIPE_READ_DISCONNECTED && pip_ptr->writer==currpid)||(pip_ptr->state==PIPE_WRITE_DISCONNECTED && pip_ptr->reader==currpid))
+
+
+
+if((pip_ptr->state==PIPE_READ_DISCONNECTED && pip_ptr->writer==currpid)||(pip_ptr->state==PIPE_WRITE_DISCONNECTED && pip_ptr->reader==currpid))
 			{
 		
-			pip_ptr->state=PIPE_USED;
+			pip_ptr->state=PIPE_DISCONNECTED;
 			pip_ptr->writer=-1;
 			pip_ptr->reader=-1;
 			semreset(pip_ptr->read_sem,0);
@@ -67,8 +74,6 @@ if(pipe_id<0 || pipe_id > MAXPIPES)
 			}
 
 		
-
-
 restore(mask);
 
 

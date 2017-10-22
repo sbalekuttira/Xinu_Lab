@@ -116,7 +116,7 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
     // (3) replace stdin/stdout
 
 	int32 tmparg;
-    int msg;
+	  // int msg;
 	pid32 childs[SHELL_MAXTOK];
     int32 cmdtab_index;
 
@@ -144,6 +144,13 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
     int cur = 0;
     int next_cur = 0;
 
+	pid32 reader=-1;
+	pid32 writer=-1;
+
+	int16 wasprev=0;
+
+
+
     dump_tokens(tok, tokbuf, ntok, "non-built-in");
 
     while (cur < ntok) {
@@ -157,16 +164,41 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
 
             ASSERT(toktyp[cur] == SH_TOK_OTHER);
 
-            for (next_cur=cur+1; next_cur<ntok; next_cur++) {
-                if (toktyp[next_cur] != SH_TOK_OTHER)
+/*
+	intmask mask;
+
+	mask=disable();
+
+	for(next_cur=cur;next_cur < ntok ; next_cur++) 
+             	{		
+			
+		kprintf("\n next token is %s , %c ,%d \n " , tokbuf[tok[next_cur]], tokbuf[tok[next_cur]] ,tokbuf[tok[next_cur]]);
+		
+		if(tokbuf[tok[next_cur]]==SH_STICK) {
+		
+			kprintf("\n pipe found \n ");
+		}
+		}
+
+
+		restore(mask);
+*/  
+          for (next_cur=cur+1; next_cur<ntok; next_cur++) {
+                if (toktyp[next_cur] != SH_TOK_OTHER || tokbuf[tok[next_cur]]==SH_STICK)
                     break;
             }
 
-            ASSERT(toktyp[next_cur] != SH_TOK_OTHER || next_cur >= ntok);
+          //  ASSERT(toktyp[next_cur] != SH_TOK_OTHER || next_cur >= ntok);
 
             int num_args = next_cur-cur;
             ASSERT(num_args > 0);
             dprintf("(shell) num args: %d\n", num_args);
+
+
+	    if(tokbuf[tok[next_cur]]==SH_STICK) {
+	
+		resched_cntl(DEFER_START);
+		}
 
             /* Spawn child thread for non-built-in commands */
             childs[cur] = create(cmdtab[cmdtab_index].cfunc,
@@ -183,25 +215,85 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
                 fprintf(dev, SHELL_CREATMSG);
                 return false;
             }
+
+
+
+		if(wasprev==1) 
+	
+		{
+
+		reader=childs[cur];
+		did32 devpipe= pipcreate();
+
+		pipconnect(devpipe,writer,reader);
+		
+		proctab[writer].prdesc[1]=devpipe;
+		proctab[reader].prdesc[0]=devpipe;
+
+
+
+		wasprev=0;
+		reader=-1;
+		writer=-1;
+
+		resched_cntl(DEFER_STOP);
+
+}
+
+
+		if(tokbuf[tok[next_cur]]==SH_STICK) {
+
+
+//		kprintf("\n\n Handle pipe \n\n ");
+		wasprev=1;
+		writer=childs[cur];
+		reader=-1;
+		next_cur++;
+
+}
+
+
+
+
+
+
+
+
+
+
         } else {
 			fprintf(dev,"%s (parsing)\n", SHELL_SYNERRMSG);
             return false;
         }
         cur = next_cur;
     }
+//int msg;
 
+//int count=0;
+//while(count!=SHELL_MAXTOK-1)
+//{ 
     for (int i=0; i<SHELL_MAXTOK; i++) {
         if (childs[i] == -1)
+	{ //  count++;	
             continue;
-        msg = recvclr();
+	}
+   //     msg = recvclr();
         resume(childs[i]);
-        if (!backgnd) {
-            msg = receive();
-            while (msg != childs[i]) {
-                msg = receive();
+	
+
+	
+ //       if (!backgnd) {
+   //         msg = receive();
+     //       while (msg != childs[i]) {
+       //         msg = receive();
             }
-        }
-    }
+      //  }
+   // }
+
+
+//}
+
+
 
     return true;
 }

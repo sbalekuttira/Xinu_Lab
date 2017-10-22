@@ -3,33 +3,46 @@
 devcall pipputc(struct dentry *devptr, char ch) {
 
 
-intmask mask; /* saved interrupt mask */
- 
-int32 retval; /* value to return to caller */
-did32 descrp=devptr->dvnum;
-
-mask = disable();
 
 
+struct pipe_t *pip_ptr;
+
+pipid32 pip_id;
+
+pip_id= devptr->dvminor;
 
 
-if (isbaddev(descrp)) {
-restore(mask);
+if ( pip_id < 0 || pip_id >= MAXPIPES)
+{
+
+
 return SYSERR;
+
 }
 
 
 
-devptr = (struct dentry *) &devtab[descrp];
+pip_ptr=&pipe_tables[pip_id];
 
-retval = (*devptr->dvputc) (devptr, ch);
+wait(pip_ptr->write_sem);
 
-restore(mask);
-return retval;
+pip_ptr->pipe_buffer[++pip_ptr->write_pos]=ch;
+
+if(pip_ptr->write_pos +1  >= PIPE_SIZE ) {
+
+pip_ptr->write_pos=-1;
+
+}
+
+
+signal(pip_ptr->read_sem);
+
+
+
 
 
 
     // LAB2: TODO
-   // return OK;
+   return OK;
 }
 
