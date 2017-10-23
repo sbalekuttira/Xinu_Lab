@@ -76,11 +76,15 @@ return OK;
 first_ch=pipgetc(devptr);
 if(first_ch == SH_EOF )
 {
+
+kill(currpid);
 restore(mask);
 return SH_EOF;
 
 }
 
+
+//imitated textbook chapter 15 for reading charcters from a device
 ch= (char ) first_ch;
 *buf++=ch;
 nread=1;
@@ -93,6 +97,11 @@ ch= (char) pipgetc(devptr);
 *buf++=ch;
 nread++;
 }
+
+
+
+
+
 restore(mask);
 return nread;
 

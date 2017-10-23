@@ -116,7 +116,7 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
     // (3) replace stdin/stdout
 
 	int32 tmparg;
-	  // int msg;
+	  int msg;
 	pid32 childs[SHELL_MAXTOK];
     int32 cmdtab_index;
 
@@ -143,11 +143,11 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
 
     int cur = 0;
     int next_cur = 0;
+    int16 wasprev_tok=0;
+	pid32 read_pip=-1;
+	pid32 write_pip=-1;
 
-	pid32 reader=-1;
-	pid32 writer=-1;
 
-	int16 wasprev=0;
 
 
 
@@ -164,25 +164,7 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
 
             ASSERT(toktyp[cur] == SH_TOK_OTHER);
 
-/*
-	intmask mask;
 
-	mask=disable();
-
-	for(next_cur=cur;next_cur < ntok ; next_cur++) 
-             	{		
-			
-		kprintf("\n next token is %s , %c ,%d \n " , tokbuf[tok[next_cur]], tokbuf[tok[next_cur]] ,tokbuf[tok[next_cur]]);
-		
-		if(tokbuf[tok[next_cur]]==SH_STICK) {
-		
-			kprintf("\n pipe found \n ");
-		}
-		}
-
-
-		restore(mask);
-*/  
           for (next_cur=cur+1; next_cur<ntok; next_cur++) {
                 if (toktyp[next_cur] != SH_TOK_OTHER || tokbuf[tok[next_cur]]==SH_STICK)
                     break;
@@ -218,36 +200,39 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
 
 
 
-		if(wasprev==1) 
+		if(wasprev_tok==1) 
 	
 		{
 
-		reader=childs[cur];
+		read_pip=childs[cur];
 		did32 devpipe= pipcreate();
 
-		pipconnect(devpipe,writer,reader);
+		pipconnect(devpipe,write_pip,read_pip);
 		
-		proctab[writer].prdesc[1]=devpipe;
-		proctab[reader].prdesc[0]=devpipe;
+		proctab[write_pip].prdesc[1]=devpipe;
+		proctab[read_pip].prdesc[0]=devpipe;
 
 
 
-		wasprev=0;
-		reader=-1;
-		writer=-1;
-
+		wasprev_tok=0;
+		read_pip=-1;
+		write_pip=-1;
+	//	if(tokbuf[tok[next_cur]]!=SH_STICK)
+		
 		resched_cntl(DEFER_STOP);
 
+
+		
 }
 
 
 		if(tokbuf[tok[next_cur]]==SH_STICK) {
 
 
-//		kprintf("\n\n Handle pipe \n\n ");
-		wasprev=1;
-		writer=childs[cur];
-		reader=-1;
+
+		wasprev_tok=1;
+		write_pip=childs[cur];
+		read_pip=-1;
 		next_cur++;
 
 }
@@ -267,33 +252,36 @@ static bool8 handle_non_builtin(did32 dev, bool8 backgnd,
         }
         cur = next_cur;
     }
-//int msg;
 
-//int count=0;
-//while(count!=SHELL_MAXTOK-1)
-//{ 
+
+int flag=0;
+
     for (int i=0; i<SHELL_MAXTOK; i++) {
         if (childs[i] == -1)
 	{ //  count++;	
             continue;
 	}
-   //     msg = recvclr();
+        msg = recvclr();
         resume(childs[i]);
 	
 
 	
- //       if (!backgnd) {
+        if (!backgnd) {
+		flag=i;
    //         msg = receive();
      //       while (msg != childs[i]) {
        //         msg = receive();
             }
-      //  }
+        }
    // }
 
 
-//}
 
 
+	msg=receive();
+	while(msg!=childs[flag]){
+		msg=receive();
+}	
 
     return true;
 }

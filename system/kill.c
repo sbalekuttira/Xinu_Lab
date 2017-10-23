@@ -15,8 +15,8 @@ syscall	kill(
 	intmask	mask;			/* Saved interrupt mask		*/
 	struct	procent *prptr;	
 	struct pipe_t *pip_ptr;
-	int32	i;			/* Index into descriptors	*/
-
+				/* Index into descriptors	*/
+ 	int32 i;
 	mask = disable();
 	if (isbadpid(pid) || (pid == NULLPROC)
 	    || ((prptr = &proctab[pid])->prstate) == PR_FREE) {
@@ -24,24 +24,53 @@ syscall	kill(
 		return SYSERR;
 	}
 	
-
+//Extra added by sbalekut
 	for(i=0;i<MAXPIPES;i++)
 		{
+			i=(pipid32) i;
 			pip_ptr=&pipe_tables[i];
 
-		if(pip_ptr->owner==pid)
+		if(pid==pip_ptr->owner)
 			{pip_ptr->state=PIPE_DISCONNECTED;
 				pipdelete(pipid32_to_did32(i));
+//				 kprintf("\n INside kill.c  delete pipe_id : %d \n" , i);
 			}
 
+		//clean up reader is current process or writer is current process
 
-		if(pip_ptr->reader==pid||pip_ptr->writer==pid)
-			{
-							
-				pipdisconnect(pipid32_to_did32(i));
+		if(pip_ptr->reader == pid || pip_ptr->writer == pid) {
 
-			}
+			if(pip_ptr->writer == pid) {
+				pipputc( (struct dentry *) &devtab[pipid32_to_did32(i)] , SYSERR);
+
 		}
+
+			pipdisconnect(pipid32_to_did32(i));	
+		}
+
+
+			//throw out the pipe 
+		if(pid == pip_ptr->reader && proctab[pip_ptr->writer].prstate == PR_FREE ) {
+		
+	pipdelete(pipid32_to_did32(i));
+// kprintf("\n INside kill.c delete pipe_id : %d \n" , i);
+		}
+
+}
+	
+	//	if(pip_ptr->reader==pid||pip_ptr->writer==pid)
+	//		{
+							
+	//			pipdisconnect(pipid32_to_did32(i));
+
+	//		}
+		
+
+
+
+
+
+
 
 
 

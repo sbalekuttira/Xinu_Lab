@@ -18,21 +18,30 @@ if ( pipe_id < 0 ||  pipe_id >= MAXPIPES )
 	}
 
 
-if ( ((pip_ptr = &pipe_tables[pipe_id])->owner)!=currpid || ((pip_ptr = &pipe_tables[pipe_id])->state) == PIPE_FREE) 
-	{ 
-		restore(mask);
-		return SYSERR;
+//if ( ((pip_ptr = &pipe_tables[pipe_id])->owner)!=currpid || ((pip_ptr = &pipe_tables[pipe_id])->state) == PIPE_FREE) 
+//	{ 
+//		restore(mask);
+	//	return SYSERR;
+//	}
+
+
+
+pip_ptr = &pipe_tables[pipe_id];
+if (pip_ptr->state == PIPE_FREE) {
+	restore(mask);
+	return SYSERR;
 	}
 
 
 for(i=0;i<PIPE_SIZE;i++)
 {
-	pip_ptr->pipe_buffer[i]=NULL;
+        pip_ptr->pipe_buffer[i]=NULL;
 }
+
 
 semdelete(pip_ptr->read_sem);
 semdelete(pip_ptr->write_sem);
-
+//kprintf("\n\n PIPE DELETED \n\n");
 
 pip_ptr->read_pos=-1;
 pip_ptr->write_pos=-1;

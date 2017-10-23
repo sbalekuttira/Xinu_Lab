@@ -22,8 +22,8 @@ struct pipe_t {
 	pid32	owner;				
 	pid32	reader;				
 	pid32	writer;				
-	int read_pos;		//head
-	int write_pos;		//tail
+	int read_pos;		
+	int write_pos;	
 	sid32   read_sem;
 	sid32  write_sem;	
 

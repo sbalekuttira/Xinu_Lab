@@ -12,7 +12,7 @@ pipid32 pip_id;
 pip_id= devptr->dvminor;
 
 
-if ( pip_id < 0 || pip_id >= MAXPIPES)
+if ( currpid == NULLPROC || pip_id < 0 || pip_id >= MAXPIPES )
 {
 
 

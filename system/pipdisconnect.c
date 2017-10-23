@@ -46,12 +46,14 @@ if(currpid!=pip_ptr->reader && currpid!=pip_ptr->writer)
 
 
 
-if((pip_ptr->state==PIPE_READ_DISCONNECTED && pip_ptr->writer==currpid)||(pip_ptr->state==PIPE_WRITE_DISCONNECTED && pip_ptr->reader==currpid))
+if((pip_ptr->state==PIPE_READ_DISCONNECTED && currpid==pip_ptr->writer)||(pip_ptr->state==PIPE_WRITE_DISCONNECTED && currpid==pip_ptr->reader))
 			{
 		
 			pip_ptr->state=PIPE_DISCONNECTED;
 			pip_ptr->writer=-1;
 			pip_ptr->reader=-1;
+			pipdelete(pipid32_to_did32(pipe_id));
+//			kprintf("\n INside pip disconnect delete pipe_id : %d \n" , pipe_id);
 			semreset(pip_ptr->read_sem,0);
 			semreset(pip_ptr->write_sem,PIPE_SIZE);	
 
